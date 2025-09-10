@@ -1,9 +1,2 @@
-/portfolio            /dist/portfolio.html     200
-/portfolio/street     /dist/street.html        200
-/portfolio/travel     /dist/travel.html        200
-/portfolio/concert    /dist/concert.html       200
-/portfolio/portrait   /dist/portrait.html      200
-
-/about                /dist/about_me.html      200
-/contact              /dist/contact.html       200
-
+dist/portfolio.html            /portfolio           301
+/dist/portfolio.html           /portfolio           301
