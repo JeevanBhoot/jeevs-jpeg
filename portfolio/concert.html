@@ -91,7 +91,14 @@
             img.loading = 'lazy';
             img.decoding = 'async';
             img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+            const onLoad = () => {
+              img.classList.remove('opacity-0');
+              img.classList.add('opacity-100');
+              img.removeEventListener('load', onLoad);
+            };
+            img.addEventListener('load', onLoad);
             img.src = it.url;
+            if (img.complete) onLoad();
             a.appendChild(img);
             wrapper.appendChild(a);
             frag.appendChild(wrapper);
