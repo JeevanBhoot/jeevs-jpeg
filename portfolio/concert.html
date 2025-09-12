@@ -64,11 +64,46 @@
     <h1 class="text-4xl pt-10 pb-8 font-bold">CONCERT</h1>
     <section class="text-neutral-700">
       <div class="container w-full">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
-          <!-- Add your images here later -->
-        </div>
+        <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3"></div>
+        <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/concert.json</code>.</p>
       </div>
     </section>
+    <script>
+      fetch('./data/concert.json', { cache: 'no-cache' })
+        .then(r => r.json())
+        .then(items => {
+          const grid = document.getElementById('gallery');
+          const empty = document.getElementById('emptyMsg');
+          if (!Array.isArray(items) || items.length === 0) {
+            empty.classList.remove('hidden');
+            return;
+          }
+          const frag = document.createDocumentFragment();
+          items.forEach((it) => {
+            if (!it || !it.url) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'overflow-hidden h-full w-full';
+            const a = document.createElement('a');
+            a.href = it.url;
+            a.setAttribute('data-fancybox', 'gallery');
+            const img = document.createElement('img');
+            img.alt = it.alt || '';
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+            img.src = it.url;
+            a.appendChild(img);
+            wrapper.appendChild(a);
+            frag.appendChild(wrapper);
+          });
+          grid.appendChild(frag);
+        })
+        .catch(() => {
+          const empty = document.getElementById('emptyMsg');
+          empty.textContent = 'Could not load gallery data.';
+          empty.classList.remove('hidden');
+        });
+    </script>
   </div>
 
   <footer>
