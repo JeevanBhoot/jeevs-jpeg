@@ -1,4 +1,0 @@
-[[redirects]]
-  from = "/portfolio"
-  to = "/dist/portfolio.html"
-  status = 200
