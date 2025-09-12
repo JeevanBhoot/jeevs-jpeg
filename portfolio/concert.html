@@ -64,7 +64,7 @@
     <h1 class="text-4xl pt-10 pb-8 font-bold">CONCERT</h1>
     <section class="text-neutral-700">
       <div class="container w-full">
-        <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3"></div>
+        <div id="gallery" class="columns-1 sm:columns-2 lg:columns-3 gap-3"></div>
         <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/concert.json</code>.</p>
       </div>
     </section>
@@ -82,7 +82,7 @@
           items.forEach((it) => {
             if (!it || !it.url) return;
             const wrapper = document.createElement('div');
-            wrapper.className = 'overflow-hidden h-full w-full';
+            wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
             const a = document.createElement('a');
             a.href = it.url;
             a.setAttribute('data-fancybox', 'gallery');
