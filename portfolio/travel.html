@@ -87,6 +87,7 @@
           let index = 0;
           const CHUNK = 30;
           let priorityCount = 0;
+          let loading = false;
 
           const makeTransformed = (url, trans) => {
             const up = '/upload/';
@@ -132,8 +133,10 @@
           };
 
           const renderChunk = async () => {
+            if (loading) return;
+            loading = true;
             const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
-            if (!slice.length) return;
+            if (!slice.length) { loading = false; return; }
             const containerWidth = grid.clientWidth || window.innerWidth - 40;
             const baseRowH = window.innerWidth >= 1024 ? 320 : 220;
             const gap = 12;
@@ -172,9 +175,10 @@
               frag.appendChild(rowDiv);
             });
             grid.appendChild(frag);
-            Fancybox.bind('[data-fancybox=\"gallery\"]', {});
+            Fancybox.bind('[data-fancybox="gallery"]', {});
             index += slice.length;
             if (index >= items.length) observer.disconnect();
+            loading = false;
           };
 
           renderChunk();
@@ -183,7 +187,7 @@
             if (entries.some(e => e.isIntersecting)) {
               renderChunk();
             }
-          });
+          }, { rootMargin: '800px 0px' });
           observer.observe(sentinel);
         })
         .catch(() => {
