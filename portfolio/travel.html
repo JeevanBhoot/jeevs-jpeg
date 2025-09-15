@@ -138,7 +138,7 @@
             const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
             if (!slice.length) { loading = false; return; }
             const containerWidth = grid.clientWidth || window.innerWidth - 40;
-            const baseRowH = window.innerWidth >= 1024 ? 320 : 220;
+            const baseRowH = window.innerWidth >= 1024 ? 400 : 220;
             const gap = 12;
             const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
             const rows = layoutRows(withAr, containerWidth, baseRowH, gap);
