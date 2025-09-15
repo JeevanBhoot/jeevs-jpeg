@@ -139,14 +139,17 @@
             const containerWidth = Math.floor(grid.getBoundingClientRect().width || (window.innerWidth - 40));
             const baseRowH = window.innerWidth >= 1024 ? 320 : 220;
             const gap = 12;
-            const withAr = batch.map((it) => ({ ...it, ar: computeAr(it) }));
+            const carryPrevLen = batch.length - sliceBase.length;
+            const withAr = batch.map((it, i) => ({ ...it, ar: computeAr(it), fromCarry: i < carryPrevLen }));
             const hasMore = (index + CHUNK) < items.length;
             const packed = packRows(withAr, containerWidth, baseRowH, gap, hasMore);
 
             let usedFromBatch = 0;
+            let usedFromCarry = 0;
             const frag = document.createDocumentFragment();
             packed.fullRows.forEach((row, rowIdx) => {
               usedFromBatch += row.items.length;
+              usedFromCarry += row.items.reduce((s, it) => s + (it.fromCarry ? 1 : 0), 0);
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
               const totalContentWidth = Math.floor(containerWidth - gap * (row.items.length - 1));
@@ -187,6 +190,7 @@
             if (!hasMore && packed.remainder && packed.remainder.length) {
               const row = { items: packed.remainder, rowH: baseRowH };
               usedFromBatch += row.items.length;
+              usedFromCarry += row.items.reduce((s, it) => s + (it.fromCarry ? 1 : 0), 0);
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
               row.items.forEach((it) => {
@@ -221,8 +225,6 @@
 
             grid.appendChild(frag);
             Fancybox.bind('[data-fancybox="gallery"]', {});
-            const carryPrevLen = batch.length - sliceBase.length;
-            const usedFromCarry = Math.min(usedFromBatch, carryPrevLen);
             const usedFromSlice = usedFromBatch - usedFromCarry;
             index += usedFromSlice;
             if (index >= items.length) observer.disconnect();
