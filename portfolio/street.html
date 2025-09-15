@@ -68,7 +68,7 @@
     <h1 class="text-4xl pt-10 pb-8 font-bold">STREET</h1>
     <section class="text-neutral-700">
       <div class="container w-full">
-        <div id="gallery" class="columns-1 sm:columns-2 lg:columns-3 gap-3"></div>
+        <div id="gallery" class="w-full"></div>
         <div id="sentinel" class="h-1"></div>
         <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/street.json</code>.</p>
       </div>
@@ -86,64 +86,93 @@
             return;
           }
           let index = 0;
-          const CHUNK = 24;
+          const CHUNK = 30;
           let priorityCount = 0;
 
-          const renderChunk = () => {
-            const frag = document.createDocumentFragment();
-            const slice = items.slice(index, index + CHUNK);
-            slice.forEach((it) => {
-              if (!it || !it.url) return;
-              const wrapper = document.createElement('div');
-              wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
-              const a = document.createElement('a');
-              a.href = it.url;
-              a.setAttribute('data-fancybox', 'gallery');
-              const img = document.createElement('img');
-              img.alt = it.alt || '';
-              img.loading = 'lazy';
-              img.decoding = 'async';
-              img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
-              // Slightly prioritize the first few images likely near the top
-              if (priorityCount < 6) {
-                img.fetchPriority = 'high';
-                priorityCount++;
+          const makeTransformed = (url, trans) => {
+            const up = '/upload/';
+            const i = url.indexOf(up);
+            if (i === -1) return url;
+            const pre = url.slice(0, i + up.length);
+            const rest = url.slice(i + up.length);
+            const vIdx = rest.indexOf('/v');
+            const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
+            return pre + trans + suf;
+          };
+          const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
+
+          const getAspect = (url) => new Promise((resolve) => {
+            const tiny = new Image();
+            tiny.decoding = 'async';
+            tiny.src = makeTransformed(url, 'f_avif,q_1,c_limit,w_24');
+            tiny.onload = () => {
+              resolve(tiny.naturalWidth && tiny.naturalHeight ? tiny.naturalWidth / tiny.naturalHeight : 1.5);
+            };
+            tiny.onerror = () => resolve(1.5);
+          });
+
+          const layoutRows = (itemsWithAr, containerWidth, targetRowH, gap) => {
+            const rows = [];
+            let row = [];
+            let sumAR = 0;
+            itemsWithAr.forEach((it) => {
+              row.push(it);
+              sumAR += it.ar;
+              const rowW = sumAR * targetRowH + gap * (row.length - 1);
+              if (rowW >= containerWidth * 1.1) {
+                const scale = (containerWidth - gap * (row.length - 1)) / (sumAR * targetRowH);
+                const rowH = Math.max(180, Math.round(targetRowH * scale));
+                rows.push({ items: row, rowH });
+                row = [];
+                sumAR = 0;
               }
-              const onLoad = () => {
-                img.classList.remove('opacity-0');
-                img.classList.add('opacity-100');
-                img.removeEventListener('load', onLoad);
-              };
-              img.addEventListener('load', onLoad);
-              // Resize via Cloudinary to reduce bytes without changing appearance
-              const makeTransformed = (url, trans) => {
-                const up = '/upload/';
-                const i = url.indexOf(up);
-                if (i === -1) return url;
-                const pre = url.slice(0, i + up.length);
-                const rest = url.slice(i + up.length);
-                const vIdx = rest.indexOf('/v');
-                const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
-                return pre + trans + suf;
-              };
-              const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
-              const base = makeTransformed(it.url, baseTrans);
-              img.src = makeTransformed(it.url, baseTrans + ',c_limit,w_1080');
-              img.srcset = [
-                makeTransformed(it.url, baseTrans + ',c_limit,w_372') + ' 372w',
-                makeTransformed(it.url, baseTrans + ',c_limit,w_480') + ' 480w',
-                makeTransformed(it.url, baseTrans + ',c_limit,w_768') + ' 768w',
-                makeTransformed(it.url, baseTrans + ',c_limit,w_1080') + ' 1080w',
-                makeTransformed(it.url, baseTrans + ',c_limit,w_1440') + ' 1440w'
-              ].join(',');
-              img.sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw';
-              if (img.complete) onLoad();
-              a.appendChild(img);
-              wrapper.appendChild(a);
-              frag.appendChild(wrapper);
+            });
+            if (row.length) rows.push({ items: row, rowH: targetRowH });
+            return rows;
+          };
+
+          const renderChunk = async () => {
+            const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
+            if (!slice.length) return;
+            const containerWidth = grid.clientWidth || window.innerWidth - 40;
+            const targetRowH = window.innerWidth >= 1024 ? 320 : 220;
+            const gap = 12;
+            const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
+            const rows = layoutRows(withAr, containerWidth, targetRowH, gap);
+
+            const frag = document.createDocumentFragment();
+            rows.forEach((row, rowIdx) => {
+              const rowDiv = document.createElement('div');
+              rowDiv.className = 'flex gap-3 mb-3';
+              row.items.forEach((it) => {
+                const width = Math.round(it.ar * row.rowH);
+                const wrap = document.createElement('div');
+                wrap.style.width = width + 'px';
+                wrap.style.height = row.rowH + 'px';
+                wrap.className = 'overflow-hidden';
+                const a = document.createElement('a');
+                a.href = it.url;
+                a.setAttribute('data-fancybox', 'gallery');
+                const img = document.createElement('img');
+                img.alt = it.alt || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                if (priorityCount < 8 && rowIdx === 0) { img.fetchPriority = 'high'; priorityCount++; }
+                img.width = width; img.height = row.rowH;
+                img.className = 'block w-full h-full object-cover object-center opacity-0 transition duration-500';
+                const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
+                img.addEventListener('load', onLoad);
+                const trans = baseTrans + `,c_fill,g_auto,w_${width},h_${row.rowH}`;
+                img.src = makeTransformed(it.url, trans);
+                if (img.complete) onLoad();
+                a.appendChild(img);
+                wrap.appendChild(a);
+                rowDiv.appendChild(wrap);
+              });
+              frag.appendChild(rowDiv);
             });
             grid.appendChild(frag);
-            Fancybox.bind('[data-fancybox="gallery"]', {});
+            Fancybox.bind('[data-fancybox=\"gallery\"]', {});
             index += slice.length;
             if (index >= items.length) observer.disconnect();
           };
