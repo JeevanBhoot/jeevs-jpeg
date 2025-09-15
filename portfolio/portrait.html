@@ -15,6 +15,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Start - Fancybox Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+  <!-- End - Fancybox Scripts -->
   <script>
     tailwind.config = {
       content: ["./dist/*.{html,js}"],
@@ -65,6 +69,7 @@
     <section class="text-neutral-700">
       <div class="container w-full">
         <div id="gallery" class="columns-1 sm:columns-2 lg:columns-3 gap-3"></div>
+        <div id="sentinel" class="h-1"></div>
         <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/portrait.json</code>.</p>
       </div>
     </section>
@@ -74,36 +79,55 @@
         .then(items => {
           const grid = document.getElementById('gallery');
           const empty = document.getElementById('emptyMsg');
+          const sentinel = document.getElementById('sentinel');
           if (!Array.isArray(items) || items.length === 0) {
             empty.classList.remove('hidden');
             return;
           }
-          const frag = document.createDocumentFragment();
-          items.forEach((it) => {
-            if (!it || !it.url) return;
-            const wrapper = document.createElement('div');
-            wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
-            const a = document.createElement('a');
-            a.href = it.url;
-            a.setAttribute('data-fancybox', 'gallery');
-            const img = document.createElement('img');
-            img.alt = it.alt || '';
-            img.loading = 'lazy';
-            img.decoding = 'async';
-            img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
-            const onLoad = () => {
-              img.classList.remove('opacity-0');
-              img.classList.add('opacity-100');
-              img.removeEventListener('load', onLoad);
-            };
-            img.addEventListener('load', onLoad);
-            img.src = it.url;
-            if (img.complete) onLoad();
-            a.appendChild(img);
-            wrapper.appendChild(a);
-            frag.appendChild(wrapper);
+          let index = 0;
+          const CHUNK = 24;
+
+          const renderChunk = () => {
+            const frag = document.createDocumentFragment();
+            const slice = items.slice(index, index + CHUNK);
+            slice.forEach((it) => {
+              if (!it || !it.url) return;
+              const wrapper = document.createElement('div');
+              wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
+              const a = document.createElement('a');
+              a.href = it.url;
+              a.setAttribute('data-fancybox', 'gallery');
+              const img = document.createElement('img');
+              img.alt = it.alt || '';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+              const onLoad = () => {
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+                img.removeEventListener('load', onLoad);
+              };
+              img.addEventListener('load', onLoad);
+              img.src = it.url;
+              if (img.complete) onLoad();
+              a.appendChild(img);
+              wrapper.appendChild(a);
+              frag.appendChild(wrapper);
+            });
+            grid.appendChild(frag);
+            Fancybox.bind('[data-fancybox="gallery"]', {});
+            index += slice.length;
+            if (index >= items.length) observer.disconnect();
+          };
+
+          renderChunk();
+
+          const observer = new IntersectionObserver((entries) => {
+            if (entries.some(e => e.isIntersecting)) {
+              renderChunk();
+            }
           });
-          grid.appendChild(frag);
+          observer.observe(sentinel);
         })
         .catch(() => {
           const empty = document.getElementById('emptyMsg');
