@@ -87,6 +87,7 @@
           }
           let index = 0;
           const CHUNK = 24;
+          let priorityCount = 0;
 
           const renderChunk = () => {
             const frag = document.createDocumentFragment();
@@ -103,13 +104,38 @@
               img.loading = 'lazy';
               img.decoding = 'async';
               img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+              // Slightly prioritize the first few images likely near the top
+              if (priorityCount < 6) {
+                img.fetchPriority = 'high';
+                priorityCount++;
+              }
               const onLoad = () => {
                 img.classList.remove('opacity-0');
                 img.classList.add('opacity-100');
                 img.removeEventListener('load', onLoad);
               };
               img.addEventListener('load', onLoad);
-              img.src = it.url;
+              // Resize via Cloudinary to reduce bytes without changing appearance
+              const makeTransformed = (url, trans) => {
+                const up = '/upload/';
+                const i = url.indexOf(up);
+                if (i === -1) return url;
+                const pre = url.slice(0, i + up.length);
+                const rest = url.slice(i + up.length);
+                const vIdx = rest.indexOf('/v');
+                const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
+                return pre + trans + suf;
+              };
+              const baseTrans = 'f_auto,q_auto:eco,dpr_auto';
+              const base = makeTransformed(it.url, baseTrans);
+              img.src = makeTransformed(it.url, baseTrans + ',c_limit,w_1080');
+              img.srcset = [
+                makeTransformed(it.url, baseTrans + ',c_limit,w_480') + ' 480w',
+                makeTransformed(it.url, baseTrans + ',c_limit,w_768') + ' 768w',
+                makeTransformed(it.url, baseTrans + ',c_limit,w_1080') + ' 1080w',
+                makeTransformed(it.url, baseTrans + ',c_limit,w_1440') + ' 1440w'
+              ].join(',');
+              img.sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw';
               if (img.complete) onLoad();
               a.appendChild(img);
               wrapper.appendChild(a);
