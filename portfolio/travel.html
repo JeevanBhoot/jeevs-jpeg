@@ -137,7 +137,7 @@
             loading = true;
             const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
             if (!slice.length) { loading = false; return; }
-            const containerWidth = Math.floor(grid.getBoundingClientRect().width || (window.innerWidth - 40));
+            const containerWidth = grid.clientWidth || window.innerWidth - 40;
             const baseRowH = window.innerWidth >= 1024 ? 320 : 220;
             const gap = 12;
             const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
@@ -147,20 +147,8 @@
             rows.forEach((row, rowIdx) => {
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
-              const totalContentWidth = Math.floor(containerWidth - gap * (row.items.length - 1));
-              const sumAR = row.items.reduce((s, it2) => s + it2.ar, 0);
-              const rawWidths = row.items.map(it2 => (totalContentWidth * it2.ar) / sumAR);
-              const intWidths = rawWidths.map(w => Math.floor(w));
-              let leftover = totalContentWidth - intWidths.reduce((s, w) => s + w, 0);
-              const order = row.items.map((it2, i2) => ({ i2, ar: it2.ar }))
-                                     .sort((a,b) => b.ar - a.ar)
-                                     .map(o => o.i2);
-              const plus = new Array(row.items.length).fill(0);
-              for (let k = 0; k < leftover; k++) {
-                plus[order[k % order.length]]++;
-              }
-              row.items.forEach((it, idx) => {
-                const width = intWidths[idx] + plus[idx];
+              row.items.forEach((it) => {
+                const width = Math.round(it.ar * row.rowH);
                 const wrap = document.createElement('div');
                 wrap.style.width = width + 'px';
                 wrap.style.height = row.rowH + 'px';
