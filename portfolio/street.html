@@ -96,6 +96,8 @@
               if (!it || !it.url) return;
               const wrapper = document.createElement('div');
               wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
+              // Reserve space to prevent CLS (default guess, updated after probe)
+              wrapper.style.aspectRatio = '3 / 2';
               const a = document.createElement('a');
               a.href = it.url;
               a.setAttribute('data-fancybox', 'gallery');
@@ -115,6 +117,15 @@
                 img.removeEventListener('load', onLoad);
               };
               img.addEventListener('load', onLoad);
+              // Tiny probe to determine true aspect ratio quickly
+              const probe = new Image();
+              probe.decoding = 'async';
+              probe.src = makeTransformed(it.url, 'f_avif,q_1,c_limit,w_24');
+              probe.onload = () => {
+                if (probe.naturalWidth && probe.naturalHeight) {
+                  wrapper.style.aspectRatio = `${probe.naturalWidth} / ${probe.naturalHeight}`;
+                }
+              };
               // Resize via Cloudinary to reduce bytes without changing appearance
               const makeTransformed = (url, trans) => {
                 const up = '/upload/';

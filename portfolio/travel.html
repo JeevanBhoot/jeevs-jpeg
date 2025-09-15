@@ -95,6 +95,7 @@
               if (!it || !it.url) return;
               const wrapper = document.createElement('div');
               wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
+              wrapper.style.aspectRatio = '3 / 2';
               const a = document.createElement('a');
               a.href = it.url;
               a.setAttribute('data-fancybox', 'gallery');
@@ -113,6 +114,14 @@
                 img.removeEventListener('load', onLoad);
               };
               img.addEventListener('load', onLoad);
+              const probe = new Image();
+              probe.decoding = 'async';
+              probe.src = makeTransformed(it.url, 'f_avif,q_1,c_limit,w_24');
+              probe.onload = () => {
+                if (probe.naturalWidth && probe.naturalHeight) {
+                  wrapper.style.aspectRatio = `${probe.naturalWidth} / ${probe.naturalHeight}`;
+                }
+              };
               const makeTransformed = (url, trans) => {
                 const up = '/upload/';
                 const i = url.indexOf(up);
