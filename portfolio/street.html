@@ -130,6 +130,7 @@
               const base = makeTransformed(it.url, baseTrans);
               img.src = makeTransformed(it.url, baseTrans + ',c_limit,w_1080');
               img.srcset = [
+                makeTransformed(it.url, baseTrans + ',c_limit,w_372') + ' 372w',
                 makeTransformed(it.url, baseTrans + ',c_limit,w_480') + ' 480w',
                 makeTransformed(it.url, baseTrans + ',c_limit,w_768') + ' 768w',
                 makeTransformed(it.url, baseTrans + ',c_limit,w_1080') + ' 1080w',
