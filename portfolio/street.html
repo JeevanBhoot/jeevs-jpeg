@@ -9,12 +9,13 @@
   <meta name="description" content="Street photography gallery by Jeevan Bhoot.">
   <link rel="icon" type="image/x-icon" href="../src/assets/favicon.ico" />
   <link rel="stylesheet" href="output.css" />
-  <link rel="stylesheet" href="styles.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CDN removed (static CSS used) -->
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+  <link rel="dns-prefetch" href="https://res.cloudinary.com">
   <!-- Start - Fancybox Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
@@ -75,7 +76,7 @@
     </section>
     <script>
       // Expected JSON: [{ url: "https://...", alt: "..." }, ...]
-      fetch('./data/street.json', { cache: 'no-cache' })
+      fetch('./data/street.json')
         .then(r => r.json())
         .then(items => {
           const grid = document.getElementById('gallery');
@@ -102,14 +103,28 @@
               img.alt = it.alt || '';
               img.loading = 'lazy';
               img.decoding = 'async';
-              img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+              img.fetchPriority = index === 0 ? 'high' : 'auto';
+              img.referrerPolicy = 'no-referrer';
+              // CLS mitigation: reserve space using content-visibility and intrinsic size
+              img.style.contentVisibility = 'auto';
+              img.style.containIntrinsicSize = '600px 400px';
+              img.className = 'block w-full h-auto object-cover object-center opacity-0 transition duration-500 transform scale-100 hover:scale-110';
               const onLoad = () => {
                 img.classList.remove('opacity-0');
                 img.classList.add('opacity-100');
                 img.removeEventListener('load', onLoad);
               };
               img.addEventListener('load', onLoad);
-              img.src = it.url;
+              // Build Cloudinary responsive URL set
+              const base = it.url.replace(/\/upload\/.*?\//, '/upload/f_auto,q_auto:eco,dpr_auto/');
+              img.src = base;
+              img.srcset = [
+                base.replace('/upload/', '/upload/c_limit,w_480/ ') + '480w',
+                base.replace('/upload/', '/upload/c_limit,w_768/ ') + '768w',
+                base.replace('/upload/', '/upload/c_limit,w_1080/ ') + '1080w',
+                base.replace('/upload/', '/upload/c_limit,w_1440/ ') + '1440w'
+              ].join(',');
+              img.sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw';
               if (img.complete) onLoad();
               a.appendChild(img);
               wrapper.appendChild(a);
