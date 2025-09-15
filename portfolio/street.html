@@ -74,7 +74,6 @@
       </div>
     </section>
     <script>
-      // Expected JSON: [{ url: "https://...", alt: "..." }, ...]
       fetch('./data/street.json', { cache: 'no-cache' })
         .then(r => r.json())
         .then(items => {
@@ -99,12 +98,12 @@
             const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
             return pre + trans + suf;
           };
-          const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
+          const baseTrans = 'f_auto,q_auto:eco,dpr_auto';
 
           const getAspect = (url) => new Promise((resolve) => {
             const tiny = new Image();
             tiny.decoding = 'async';
-            tiny.src = makeTransformed(url, 'f_avif,q_1,c_limit,w_24');
+            tiny.src = makeTransformed(url, 'f_auto,q_1,c_limit,w_24');
             tiny.onload = () => {
               resolve(tiny.naturalWidth && tiny.naturalHeight ? tiny.naturalWidth / tiny.naturalHeight : 1.5);
             };
@@ -178,10 +177,8 @@
             if (index >= items.length) observer.disconnect();
           };
 
-          // Initial render
           renderChunk();
 
-          // Infinite scroll loader
           const observer = new IntersectionObserver((entries) => {
             if (entries.some(e => e.isIntersecting)) {
               renderChunk();
