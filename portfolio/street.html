@@ -37,7 +37,7 @@
   </script>
 </head>
 
-<body class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
+<body class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 transition duration-500">
   <header class="flex w-full overflow-hidden pt-10 pb-1">
     <nav id="nav" x-data="{ open: false }" role="navigation" class="w-full">
       <div class="container mx-auto flex flex-wrap items-center md:flex-no-wrap">
@@ -116,13 +116,13 @@
               };
               img.addEventListener('load', onLoad);
               // Build Cloudinary responsive URL set
-              const base = it.url.replace(/\/upload\/.*?\//, '/upload/f_auto,q_auto:eco,dpr_auto/');
+              const base = it.url.replace(/\/upload\/(?:[^/]+\/)?/, '/upload/f_auto,q_auto:eco,dpr_auto/');
               img.src = base;
               img.srcset = [
-                base.replace('/upload/', '/upload/c_limit,w_480/ ') + '480w',
-                base.replace('/upload/', '/upload/c_limit,w_768/ ') + '768w',
-                base.replace('/upload/', '/upload/c_limit,w_1080/ ') + '1080w',
-                base.replace('/upload/', '/upload/c_limit,w_1440/ ') + '1440w'
+                base.replace('/upload/', '/upload/c_limit,w_480/') + ' 480w',
+                base.replace('/upload/', '/upload/c_limit,w_768/') + ' 768w',
+                base.replace('/upload/', '/upload/c_limit,w_1080/') + ' 1080w',
+                base.replace('/upload/', '/upload/c_limit,w_1440/') + ' 1440w'
               ].join(',');
               img.sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw';
               if (img.complete) onLoad();
