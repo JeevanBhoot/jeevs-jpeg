@@ -74,7 +74,7 @@
       </div>
     </section>
     <script>
-      fetch('./data/street.json', { cache: 'no-cache' })
+      fetch('./data/street.with_dims.json', { cache: 'no-cache' })
         .then(r => r.json())
         .then(items => {
           const grid = document.getElementById('gallery');
@@ -87,6 +87,7 @@
           let index = 0;
           const CHUNK = 30;
           let priorityCount = 0;
+          let loading = false;
 
           const makeTransformed = (url, trans) => {
             const up = '/upload/';
@@ -100,15 +101,7 @@
           };
           const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
 
-          const getAspect = (url) => new Promise((resolve) => {
-            const tiny = new Image();
-            tiny.decoding = 'async';
-            tiny.src = makeTransformed(url, 'f_avif,q_1,c_limit,w_24');
-            tiny.onload = () => {
-              resolve(tiny.naturalWidth && tiny.naturalHeight ? tiny.naturalWidth / tiny.naturalHeight : 1.5);
-            };
-            tiny.onerror = () => resolve(1.5);
-          });
+          const computeAr = (it) => (it.w && it.h && it.h !== 0) ? (it.w / it.h) : 1.5;
 
           const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap) => {
             const rows = [];
@@ -132,20 +125,29 @@
           };
 
           const renderChunk = async () => {
+            if (loading) return;
+            loading = true;
             const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
-            if (!slice.length) return;
-            const containerWidth = grid.clientWidth || window.innerWidth - 40;
+            if (!slice.length) { loading = false; return; }
+            const containerWidth = Math.floor(grid.getBoundingClientRect().width || (window.innerWidth - 40));
             const targetRowH = window.innerWidth >= 1024 ? 400 : 220;
             const gap = 12;
-            const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
+            const withAr = slice.map((it) => ({ ...it, ar: computeAr(it) }));
             const rows = layoutRows(withAr, containerWidth, targetRowH, gap);
 
             const frag = document.createDocumentFragment();
             rows.forEach((row, rowIdx) => {
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
-              row.items.forEach((it) => {
-                const width = Math.round(it.ar * row.rowH);
+              const totalContentWidth = Math.floor(containerWidth - gap * (row.items.length - 1));
+              const sumAR = row.items.reduce((s, it2) => s + it2.ar, 0);
+              const rawWidths = row.items.map(it2 => (totalContentWidth * it2.ar) / sumAR);
+              const intWidths = rawWidths.map(w => Math.floor(w));
+              let leftover = totalContentWidth - intWidths.reduce((s, w) => s + w, 0);
+              const plus = new Array(row.items.length).fill(0);
+              for (let k = 0; k < leftover; k++) plus[k % row.items.length]++;
+              row.items.forEach((it, idx) => {
+                const width = intWidths[idx] + plus[idx];
                 const wrap = document.createElement('div');
                 wrap.style.width = width + 'px';
                 wrap.style.height = row.rowH + 'px';
@@ -172,9 +174,10 @@
               frag.appendChild(rowDiv);
             });
             grid.appendChild(frag);
-            Fancybox.bind('[data-fancybox=\"gallery\"]', {});
+            Fancybox.bind('[data-fancybox="gallery"]', {});
             index += slice.length;
             if (index >= items.length) observer.disconnect();
+            loading = false;
           };
 
           renderChunk();
@@ -183,7 +186,7 @@
             if (entries.some(e => e.isIntersecting)) {
               renderChunk();
             }
-          });
+          }, { rootMargin: '800px 0px' });
           observer.observe(sentinel);
         })
         .catch(() => {
