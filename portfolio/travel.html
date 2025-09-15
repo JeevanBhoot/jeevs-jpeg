@@ -88,6 +88,7 @@
           const CHUNK = 30;
           let priorityCount = 0;
           let loading = false;
+          let carry = [];
 
           const makeTransformed = (url, trans) => {
             const up = '/upload/';
@@ -103,8 +104,8 @@
 
           const computeAr = (it) => (it.w && it.h && it.h !== 0) ? (it.w / it.h) : 1.5;
 
-          const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap) => {
-            const rows = [];
+          const packRows = (itemsWithAr, containerWidth, baseRowH, gap, hasMore) => {
+            const fullRows = [];
             let row = [];
             let sumAR = 0;
             itemsWithAr.forEach((it) => {
@@ -112,31 +113,40 @@
               sumAR += it.ar;
               const desiredH = baseRowH;
               const rowW = sumAR * desiredH + gap * (row.length - 1);
-              if (rowW >= containerWidth * 1.1) {
+              if (rowW >= containerWidth * 1.05) {
                 const scale = (containerWidth - gap * (row.length - 1)) / (sumAR * desiredH);
                 const rowH = Math.max(160, Math.round(desiredH * scale));
-                rows.push({ items: row, rowH });
+                fullRows.push({ items: row, rowH });
                 row = [];
                 sumAR = 0;
               }
             });
-            if (row.length) rows.push({ items: row, rowH: baseRowH });
-            return rows;
+            // If there are more items to come, carry the last partial row forward
+            if (row.length && hasMore) {
+              return { fullRows, remainder: row };
+            }
+            // No more items: render the last row ragged (no full justifying)
+            if (row.length) fullRows.push({ items: row, rowH: baseRowH });
+            return { fullRows, remainder: [] };
           };
 
           const renderChunk = async () => {
             if (loading) return;
             loading = true;
-            const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
-            if (!slice.length) { loading = false; return; }
+            const sliceBase = items.slice(index, index + CHUNK);
+            const batch = carry.concat(sliceBase).filter(it => it && it.url);
+            if (!batch.length) { loading = false; return; }
             const containerWidth = Math.floor(grid.getBoundingClientRect().width || (window.innerWidth - 40));
             const baseRowH = window.innerWidth >= 1024 ? 320 : 220;
             const gap = 12;
-            const withAr = slice.map((it) => ({ ...it, ar: computeAr(it) }));
-            const rows = layoutRows(withAr, containerWidth, baseRowH, gap);
+            const withAr = batch.map((it) => ({ ...it, ar: computeAr(it) }));
+            const hasMore = (index + CHUNK) < items.length;
+            const packed = packRows(withAr, containerWidth, baseRowH, gap, hasMore);
 
+            let usedFromBatch = 0;
             const frag = document.createDocumentFragment();
-            rows.forEach((row, rowIdx) => {
+            packed.fullRows.forEach((row, rowIdx) => {
+              usedFromBatch += row.items.length;
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
               const totalContentWidth = Math.floor(containerWidth - gap * (row.items.length - 1));
@@ -173,9 +183,47 @@
               });
               frag.appendChild(rowDiv);
             });
+            // Render ragged last row only when no more items are coming
+            if (!hasMore && packed.remainder && packed.remainder.length) {
+              const row = { items: packed.remainder, rowH: baseRowH };
+              usedFromBatch += row.items.length;
+              const rowDiv = document.createElement('div');
+              rowDiv.className = 'flex gap-3 mb-3';
+              row.items.forEach((it) => {
+                const width = Math.round(it.ar * row.rowH);
+                const wrap = document.createElement('div');
+                wrap.style.width = width + 'px';
+                wrap.style.height = row.rowH + 'px';
+                wrap.className = 'overflow-hidden';
+                const a = document.createElement('a');
+                a.href = it.url;
+                a.setAttribute('data-fancybox', 'gallery');
+                const img = document.createElement('img');
+                img.alt = it.alt || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.width = width; img.height = row.rowH;
+                img.className = 'block w-full h-full object-cover object-center opacity-0 transition duration-500';
+                const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
+                img.addEventListener('load', onLoad);
+                const trans = baseTrans + `,c_fit,g_auto,w_${width},h_${row.rowH}`;
+                img.src = makeTransformed(it.url, trans);
+                if (img.complete) onLoad();
+                a.appendChild(img);
+                wrap.appendChild(a);
+                rowDiv.appendChild(wrap);
+              });
+              frag.appendChild(rowDiv);
+              carry = [];
+            } else {
+              carry = packed.remainder || [];
+            }
+
             grid.appendChild(frag);
             Fancybox.bind('[data-fancybox="gallery"]', {});
-            index += slice.length;
+            const carryPrevLen = (batch.length - sliceBase.length);
+            const usedFromSlice = Math.max(0, usedFromBatch - carryPrevLen);
+            index += usedFromSlice;
             if (index >= items.length) observer.disconnect();
             loading = false;
           };
