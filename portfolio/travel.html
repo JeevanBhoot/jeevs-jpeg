@@ -9,13 +9,12 @@
   <meta name="description" content="Travel photography gallery by Jeevan Bhoot.">
   <link rel="icon" type="image/x-icon" href="../src/assets/favicon.ico" />
   <link rel="stylesheet" href="output.css" />
+  <link rel="stylesheet" href="styles.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CDN removed (static CSS used) -->
-  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-  <link rel="dns-prefetch" href="https://res.cloudinary.com">
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Start - Fancybox Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
@@ -37,7 +36,7 @@
   </script>
 </head>
 
-<body class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 transition duration-500">
+<body class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
   <header class="flex w-full overflow-hidden pt-10 pb-1">
     <nav id="nav" x-data="{ open: false }" role="navigation" class="w-full">
       <div class="container mx-auto flex flex-wrap items-center md:flex-no-wrap">
@@ -69,13 +68,13 @@
     <h1 class="text-4xl pt-10 pb-8 font-bold">TRAVEL</h1>
     <section class="text-neutral-700">
       <div class="container w-full">
-        <div id="gallery" class="mz-grid"></div>
+        <div id="gallery" class="columns-1 sm:columns-2 lg:columns-3 gap-3"></div>
         <div id="sentinel" class="h-1"></div>
         <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/travel.json</code>.</p>
       </div>
     </section>
     <script>
-      fetch('./data/travel.json')
+      fetch('./data/travel.json', { cache: 'no-cache' })
         .then(r => r.json())
         .then(items => {
           const grid = document.getElementById('gallery');
@@ -94,7 +93,7 @@
             slice.forEach((it) => {
               if (!it || !it.url) return;
               const wrapper = document.createElement('div');
-              wrapper.className = 'mz-item overflow-hidden h-full w-full';
+              wrapper.className = 'overflow-hidden h-full w-full break-inside-avoid mb-3';
               const a = document.createElement('a');
               a.href = it.url;
               a.setAttribute('data-fancybox', 'gallery');
@@ -102,26 +101,14 @@
               img.alt = it.alt || '';
               img.loading = 'lazy';
               img.decoding = 'async';
-              img.fetchPriority = index === 0 ? 'high' : 'auto';
-              img.referrerPolicy = 'no-referrer';
-              img.style.contentVisibility = 'auto';
-              img.style.containIntrinsicSize = '600px 400px';
-              img.className = 'block w-full h-auto object-cover object-center opacity-0 transition duration-500 transform scale-100 hover:scale-110';
+              img.className = 'block w-full h-auto object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
               const onLoad = () => {
                 img.classList.remove('opacity-0');
                 img.classList.add('opacity-100');
                 img.removeEventListener('load', onLoad);
               };
               img.addEventListener('load', onLoad);
-              const base = it.url.replace(/\/upload\/(?:[^/]+\/)?/, '/upload/f_auto,q_auto:eco,dpr_auto/');
-              img.src = base;
-              img.srcset = [
-                base.replace('/upload/', '/upload/c_limit,w_480/') + ' 480w',
-                base.replace('/upload/', '/upload/c_limit,w_768/') + ' 768w',
-                base.replace('/upload/', '/upload/c_limit,w_1080/') + ' 1080w',
-                base.replace('/upload/', '/upload/c_limit,w_1440/') + ' 1440w'
-              ].join(',');
-              img.sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw';
+              img.src = it.url;
               if (img.complete) onLoad();
               a.appendChild(img);
               wrapper.appendChild(a);

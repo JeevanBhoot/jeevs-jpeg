@@ -1,16 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Keep page paint immediate; only fade images individually
+  const body = document.querySelector("body");
+  body.classList.remove("opacity-0");
+  body.classList.add("opacity-100");
   const photos = document.querySelectorAll("img");
+  let delay = 0;
   photos.forEach((photo) => {
-    const onLoad = () => {
+    setTimeout(() => {
       photo.classList.remove("opacity-0");
       photo.classList.add("opacity-100");
-      photo.removeEventListener("load", onLoad);
-    };
-    if (photo.complete) {
-      onLoad();
-    } else {
-      photo.addEventListener("load", onLoad);
-    }
+    }, delay);
+    delay += 100;
   });
 });

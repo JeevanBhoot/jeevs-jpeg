@@ -20,21 +20,6 @@
   /* 2 */
 }
 
-/* Custom masonry grid helpers (no Tailwind dependency) */
-.mz-grid {
-  column-gap: 12px;
-}
-@media (min-width: 640px) {
-  .mz-grid { column-count: 2; }
-}
-@media (min-width: 1024px) {
-  .mz-grid { column-count: 3; }
-}
-.mz-item {
-  break-inside: avoid;
-  margin-bottom: 12px;
-}
-
 ::before,
 ::after {
   --tw-content: '';
