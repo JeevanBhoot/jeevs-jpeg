@@ -11,18 +11,35 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="../src/assets/favicon.ico" />
   <link rel="stylesheet" href="output.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <!-- Start - Fonts -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
   <!-- End - Fonts -->
-  <!-- Tailwind CDN removed (static CSS used) -->
-  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-  <link rel="dns-prefetch" href="https://res.cloudinary.com">
+  <!-- Tailwind CDN to ensure utilities used on this page are available -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      content: ["./dist/*.{html,js}"],
+      theme: {
+        extend:
+                {
+                  fontFamily: {
+                    'nothingyoucoulddo': ['Nothing You Could Do', 'cursive'],
+                    'signika': ['Signika', 'sans-serif'],
+                  },
+                },
+      },
+      plugins: [],
+    }
+  </script>
 </head>
 
 <body
-  class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 transition duration-500">
+  class="dark:bg-black bg-white h-screen text-black dark:text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
   <!-- Navbar -->
   <header class="flex w-full overflow-hidden pt-10 pb-1">
     <nav id="nav" x-data="{ open: false }" role="navigation" class="w-full">
@@ -83,13 +100,8 @@
       <!-- STREET -->
       <a href="street.html" class="block">
       <section class="relative group w-full h-48 md:h-64 lg:h-72 overflow-hidden rounded-md">
-        <img class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
-          src="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757678954/IMG_1326_eomcbu_d6d033.jpg"
-          srcset="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_192,w_320,dpr_auto/v1757678954/IMG_1326_eomcbu_d6d033.jpg 320w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757678954/IMG_1326_eomcbu_d6d033.jpg 512w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_384,w_768,dpr_auto/v1757678954/IMG_1326_eomcbu_d6d033.jpg 768w"
-          sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-          alt="Street" loading="lazy" decoding="async" fetchpriority="low" />
+        <img class="absolute inset-0 w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
+          src="https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757678954/IMG_1326_eomcbu_d6d033.jpg" alt="Street" />
         <div class="absolute inset-0 bg-black/40"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <span class="text-white text-4xl md:text-5xl font-signika tracking-widest">STREET</span>
@@ -100,13 +112,8 @@
       <!-- TRAVEL -->
       <a href="travel.html" class="block">
       <section class="relative group w-full h-48 md:h-64 lg:h-72 overflow-hidden rounded-md">
-        <img class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
-          src="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757683106/IMG_0632-2_nswtsl_a0827a.jpg"
-          srcset="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_192,w_320,dpr_auto/v1757683106/IMG_0632-2_nswtsl_a0827a.jpg 320w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757683106/IMG_0632-2_nswtsl_a0827a.jpg 512w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_384,w_768,dpr_auto/v1757683106/IMG_0632-2_nswtsl_a0827a.jpg 768w"
-          sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-          alt="Travel" loading="lazy" decoding="async" fetchpriority="low" />
+        <img class="absolute inset-0 w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
+          src="https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757683106/IMG_0632-2_nswtsl_a0827a.jpg" alt="Travel" />
         <div class="absolute inset-0 bg-black/40"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <span class="text-white text-4xl md:text-5xl font-signika tracking-widest">TRAVEL</span>
@@ -117,13 +124,8 @@
       <!-- PORTRAIT -->
       <a href="portrait.html" class="block">
       <section class="relative group w-full h-48 md:h-64 lg:h-72 overflow-hidden rounded-md">
-        <img class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
-          src="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757688484/IMG_4575-2_lzmrfl_e5e8c1.jpg"
-          srcset="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_192,w_320,dpr_auto/v1757688484/IMG_4575-2_lzmrfl_e5e8c1.jpg 320w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757688484/IMG_4575-2_lzmrfl_e5e8c1.jpg 512w,
-                  https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_384,w_768,dpr_auto/v1757688484/IMG_4575-2_lzmrfl_e5e8c1.jpg 768w"
-          sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-          alt="Portrait" loading="lazy" decoding="async" fetchpriority="low" />
+        <img class="absolute inset-0 w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
+          src="https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757688484/IMG_4575-2_lzmrfl_e5e8c1.jpg" alt="Portrait" />
         <div class="absolute inset-0 bg-black/40"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <span class="text-white text-4xl md:text-5xl font-signika tracking-widest">PORTRAIT</span>
@@ -134,13 +136,8 @@
       <!-- CONCERT -->
       <a href="concert.html" class="block">
         <section class="relative group w-full h-48 md:h-64 lg:h-72 overflow-hidden rounded-md">
-          <img class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
-            src="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757688669/IMG_5141_fpn5j8_2c010f.jpg"
-            srcset="https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_192,w_320,dpr_auto/v1757688669/IMG_5141_fpn5j8_2c010f.jpg 320w,
-                    https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_288,w_512,dpr_auto/v1757688669/IMG_5141_fpn5j8_2c010f.jpg 512w,
-                    https://res.cloudinary.com/doiqozsto/image/upload/f_auto,q_auto,c_fill,g_auto,h_384,w_768,dpr_auto/v1757688669/IMG_5141_fpn5j8_2c010f.jpg 768w"
-            sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-            alt="Concert" loading="lazy" decoding="async" fetchpriority="low" />
+          <img class="absolute inset-0 w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110 group-hover:scale-110"
+            src="https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757688669/IMG_5141_fpn5j8_2c010f.jpg" alt="Concert" />
           <div class="absolute inset-0 bg-black/40"></div>
           <div class="absolute inset-0 flex items-center justify-center">
             <span class="text-white text-4xl md:text-5xl font-signika tracking-widest">CONCERT</span>
@@ -178,4 +175,3 @@
 </body>
 
 </html>
-
