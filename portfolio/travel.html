@@ -87,6 +87,17 @@
           let index = 0;
           const CHUNK = 24;
           let priorityCount = 0;
+          const makeTransformed = (url, trans) => {
+            const up = '/upload/';
+            const i = url.indexOf(up);
+            if (i === -1) return url;
+            const pre = url.slice(0, i + up.length);
+            const rest = url.slice(i + up.length);
+            const vIdx = rest.indexOf('/v');
+            const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^\/]+\//, '/');
+            return pre + trans + suf;
+          };
+          const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
 
           const renderChunk = () => {
             const frag = document.createDocumentFragment();
@@ -122,17 +133,6 @@
                   wrapper.style.aspectRatio = `${probe.naturalWidth} / ${probe.naturalHeight}`;
                 }
               };
-              const makeTransformed = (url, trans) => {
-                const up = '/upload/';
-                const i = url.indexOf(up);
-                if (i === -1) return url;
-                const pre = url.slice(0, i + up.length);
-                const rest = url.slice(i + up.length);
-                const vIdx = rest.indexOf('/v');
-                const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
-                return pre + trans + suf;
-              };
-              const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
               img.src = makeTransformed(it.url, baseTrans + ',c_limit,w_1080');
               img.srcset = [
                 makeTransformed(it.url, baseTrans + ',c_limit,w_372') + ' 372w',
