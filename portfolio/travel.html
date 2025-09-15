@@ -221,8 +221,9 @@
 
             grid.appendChild(frag);
             Fancybox.bind('[data-fancybox="gallery"]', {});
-            const carryPrevLen = (batch.length - sliceBase.length);
-            const usedFromSlice = Math.max(0, usedFromBatch - carryPrevLen);
+            const carryPrevLen = batch.length - sliceBase.length;
+            const usedFromCarry = Math.min(usedFromBatch, carryPrevLen);
+            const usedFromSlice = usedFromBatch - usedFromCarry;
             index += usedFromSlice;
             if (index >= items.length) observer.disconnect();
             loading = false;
