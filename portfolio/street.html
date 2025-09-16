@@ -87,6 +87,8 @@
           let index = 0;
           const CHUNK = 30;
           let priorityCount = 0;
+          let loading = false;
+          let carry = [];
 
           const makeTransformed = (url, trans) => {
             const up = '/upload/';
@@ -110,7 +112,7 @@
             tiny.onerror = () => resolve(1.5);
           });
 
-          const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap) => {
+          const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap, flushLastRow = false) => {
             const rows = [];
             let row = [];
             let sumAR = 0;
@@ -127,21 +129,17 @@
                 sumAR = 0;
               }
             });
-            if (row.length) rows.push({ items: row, rowH: baseRowH });
-            return rows;
+            if (row.length && flushLastRow) {
+              rows.push({ items: row, rowH: baseRowH });
+              row = [];
+            }
+            return { rows, leftover: row.slice() };
           };
 
-          const renderChunk = async () => {
-            const slice = items.slice(index, index + CHUNK).filter(it => it && it.url);
-            if (!slice.length) return;
-            const containerWidth = grid.clientWidth || window.innerWidth - 40;
-            const targetRowH = window.innerWidth >= 1024 ? 400 : 220;
-            const gap = 12;
-            const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
-            const rows = layoutRows(withAr, containerWidth, targetRowH, gap);
-
+          const renderRows = (rows) => {
+            if (!rows.length) return;
             const frag = document.createDocumentFragment();
-            rows.forEach((row, rowIdx) => {
+            rows.forEach((row) => {
               const rowDiv = document.createElement('div');
               rowDiv.className = 'flex gap-3 mb-3';
               row.items.forEach((it) => {
@@ -157,7 +155,7 @@
                 img.alt = it.alt || '';
                 img.loading = 'lazy';
                 img.decoding = 'async';
-                if (priorityCount < 8 && rowIdx === 0) { img.fetchPriority = 'high'; priorityCount++; }
+                if (priorityCount < 8) { img.fetchPriority = 'high'; priorityCount++; }
                 img.width = width; img.height = row.rowH;
                 img.className = 'block w-full h-full object-cover object-center opacity-0 transition duration-500';
                 const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
@@ -172,9 +170,26 @@
               frag.appendChild(rowDiv);
             });
             grid.appendChild(frag);
-            Fancybox.bind('[data-fancybox=\"gallery\"]', {});
-            index += slice.length;
-            if (index >= items.length) observer.disconnect();
+            Fancybox.bind('[data-fancybox="gallery"]', {});
+          };
+
+          const renderChunk = async () => {
+            if (loading) return;
+            loading = true;
+            const rawSlice = items.slice(index, index + CHUNK);
+            const slice = rawSlice.filter(it => it && it.url);
+            index += rawSlice.length;
+            const containerWidth = grid.clientWidth || window.innerWidth - 40;
+            const baseRowH = window.innerWidth >= 1024 ? 400 : 220;
+            const gap = 12;
+            const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
+            const input = carry.concat(withAr);
+            const isLastChunk = index >= items.length;
+            const { rows, leftover } = layoutRows(input, containerWidth, baseRowH, gap, isLastChunk);
+            renderRows(rows);
+            carry = leftover;
+            if (isLastChunk && carry.length === 0) observer.disconnect();
+            loading = false;
           };
 
           renderChunk();
@@ -183,7 +198,7 @@
             if (entries.some(e => e.isIntersecting)) {
               renderChunk();
             }
-          });
+          }, { rootMargin: '800px 0px' });
           observer.observe(sentinel);
         })
         .catch(() => {
@@ -216,4 +231,3 @@
 </body>
 
 </html>
-
