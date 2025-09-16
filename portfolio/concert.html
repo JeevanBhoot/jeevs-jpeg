@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Start - Fancybox Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
   <!-- End - Fancybox Scripts -->
   <script>
@@ -73,9 +73,10 @@
       </div>
     </section>
     <script>
-      fetch('./data/concert.json', { cache: 'no-cache' })
-        .then(r => r.json())
-        .then(items => {
+      window.addEventListener('DOMContentLoaded', () => {
+        fetch('./data/concert.json', { cache: 'no-cache' })
+          .then(r => r.json())
+          .then(items => {
           const grid = document.getElementById('gallery');
           const empty = document.getElementById('emptyMsg');
           const sentinel = document.getElementById('sentinel');
@@ -200,11 +201,12 @@
           }, { rootMargin: '800px 0px' });
           observer.observe(sentinel);
         })
-        .catch(() => {
-          const empty = document.getElementById('emptyMsg');
-          empty.textContent = 'Could not load gallery data.';
-          empty.classList.remove('hidden');
-        });
+          .catch(() => {
+            const empty = document.getElementById('emptyMsg');
+            empty.textContent = 'Could not load gallery data.';
+            empty.classList.remove('hidden');
+          });
+      });
     </script>
   </div>
 

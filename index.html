@@ -19,10 +19,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
   <!-- End - Fonts -->
   <!-- Start - Fancybox Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
-  <script src="https://code.jquery.com/jquery-3.6.3.min.js"
-    integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
   <!-- End - Fancybox Scripts -->
   <!-- Start - Cloudinary -->
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
@@ -302,7 +300,9 @@
   </footer>
   <!-- Script for the LightBox -->
   <script>
-    Fancybox.bind("[data-fancybox]", {});
+    window.addEventListener('DOMContentLoaded', () => {
+      Fancybox.bind("[data-fancybox]", {});
+    });
   </script>
   <script src="src/fade_in.js"></script>
   <script src="src/menu.js"></script>
