@@ -157,7 +157,7 @@
                 img.decoding = 'async';
                 if (priorityCount < 8) { img.fetchPriority = 'high'; priorityCount++; }
                 img.width = width; img.height = row.rowH;
-                img.className = 'block w-full h-full object-cover object-center opacity-0 transition duration-500';
+                img.className = 'block w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500';
                 const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
                 img.addEventListener('load', onLoad);
                 const trans = baseTrans + `,c_fill,g_auto,w_${width},h_${row.rowH}`;
