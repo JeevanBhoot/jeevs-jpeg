@@ -180,7 +180,7 @@
             const slice = rawSlice.filter(it => it && it.url);
             index += rawSlice.length;
             const containerWidth = grid.clientWidth || window.innerWidth - 40;
-            const baseRowH = window.innerWidth >= 1024 ? 400 : 220;
+            const baseRowH = window.innerWidth >= 1024 ? 480 : 300;
             const gap = 12;
             const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
             const input = carry.concat(withAr);
