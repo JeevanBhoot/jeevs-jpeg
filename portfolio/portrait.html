@@ -89,6 +89,7 @@
           let priorityCount = 0;
           let loading = false;
           let carry = [];
+          const preloaded = new Set();
 
           const makeTransformed = (url, trans) => {
             const up = '/upload/';
@@ -161,7 +162,17 @@
                 const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
                 img.addEventListener('load', onLoad);
                 const trans = baseTrans + `,c_fill,g_auto,w_${width},h_${row.rowH}`;
-                img.src = makeTransformed(it.url, trans);
+                const finalSrc = makeTransformed(it.url, trans);
+                if (preloaded.size < 8 && !preloaded.has(finalSrc)) {
+                  const link = document.createElement('link');
+                  link.rel = 'preload';
+                  link.as = 'image';
+                  link.href = finalSrc;
+                  link.crossOrigin = 'anonymous';
+                  document.head.appendChild(link);
+                  preloaded.add(finalSrc);
+                }
+                img.src = finalSrc;
                 if (img.complete) onLoad();
                 a.appendChild(img);
                 wrap.appendChild(a);
@@ -227,7 +238,6 @@
       </div>
     </div>
   </footer>
-  <script src="../src/fade_in.js"></script>
   <script src="../src/menu.js"></script>
 </body>
 
