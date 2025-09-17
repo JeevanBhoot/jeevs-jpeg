@@ -74,36 +74,47 @@
     </nav>
   </header>
   <!-- Content -->
-  <div class="container mx-auto">
-    <div class="grid grid-cols-2 gap-16">
-      <section class="col-span-2 md:col-span-1">
-        <div class="max-w-screen-md">
-          <h1 class="text-4xl pt-10 pb-8"><b>CONTACT</b></h1>
+  <div class="container mx-auto px-5 md:px-0">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+      <section class="col-span-1">
+        <div class="max-w-xl">
+          <h1 class="text-4xl md:text-5xl font-bold pt-10 pb-8 tracking-tight text-white">CONTACT</h1>
 
-          <form method="post" name="Contact Form" 
-          data-netlify-recaptcha="true" netlify-honeypot="hpfield" data-netlify="true">
-          <input class="hidden" name="hpfield">
-          <p>
-              <label for="name">Name:</label>
-              <input type="text" name="name" id="name">
-          </p>
-          <p>
-              <label for="email">Email:</label>
-              <input type="email" name="email" id="email">
-          </p>
-          <p>
-              <label for="comments">Message:</label><br/>
-              <textarea name="message" id="message"></textarea>
-          </p>
-          <div data-netlify-recaptcha="true"></div>
-          <p>
-              <input type="submit">
-          </p>
+          <form method="post" name="Contact Form"
+            data-netlify-recaptcha="true" netlify-honeypot="hpfield" data-netlify="true"
+            class="space-y-6 bg-white/5 dark:bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-2xl">
+            <input class="hidden" name="hpfield">
+
+            <div class="space-y-2">
+              <label for="name" class="block text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">Name</label>
+              <input type="text" name="name" id="name" required
+                class="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition" placeholder="How should I address you?" />
+            </div>
+
+            <div class="space-y-2">
+              <label for="email" class="block text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">Email</label>
+              <input type="email" name="email" id="email" required
+                class="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition" placeholder="I'll reply here" />
+            </div>
+
+            <div class="space-y-2">
+              <label for="message" class="block text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">Message</label>
+              <textarea name="message" id="message" rows="5" required
+                class="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent transition resize-none"
+                placeholder="Tell me about your vision" ></textarea>
+            </div>
+
+            <div class="bg-white/95 rounded-xl p-3 shadow-lg inline-block" data-netlify-recaptcha="true"></div>
+
+            <button type="submit"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-fuchsia-500 to-indigo-500 text-white font-semibold uppercase tracking-widest shadow-xl hover:from-rose-400 hover:via-fuchsia-400 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-400 focus:ring-offset-black transition">
+              Submit Query
+            </button>
           </form>
 
         </div>
       </section>
-      <div class="col-span-2 md:col-span-1 flex relative">
+      <div class="col-span-1 flex relative">
         <div
           class="bg-white dark:bg-neutral-900 p-5 pb-20 m-6 md:m-12 shadow-lg border border-gray-100 dark:border-neutral-800  hover:rotate-0 transition duration-500 rotate-6 relative">
           <img
@@ -136,7 +147,6 @@
       </div>
     </div>
   </footer>
-  <script src="../src/fade_in.js"></script>
   <script src="../src/menu.js"></script>
 </body>
 
