@@ -14,6 +14,198 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Signika:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .location-section {
+      border-radius: 1.5rem;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.06);
+      box-shadow: 0 30px 60px -45px rgba(15, 23, 42, 0.85);
+    }
+
+    .location-banner {
+      position: relative;
+      width: 100%;
+      display: block;
+      height: clamp(14rem, 35vw, 22rem);
+      padding: 0;
+      border: none;
+      cursor: pointer;
+      background: var(--banner-image, linear-gradient(135deg, #0f172a, #1f2937)) center/cover no-repeat;
+      transition: transform 450ms cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 450ms ease;
+    }
+
+    .location-banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 20%, rgba(15, 23, 42, 0.65) 100%);
+      opacity: 0.85;
+      transition: opacity 450ms ease;
+    }
+
+    .location-banner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 55%);
+      opacity: 0;
+      transition: opacity 450ms ease;
+    }
+
+    .location-banner:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 34px 60px -32px rgba(15, 23, 42, 0.9);
+    }
+
+    .location-banner:hover::before {
+      opacity: 0.7;
+    }
+
+    .location-banner:hover::after {
+      opacity: 0.25;
+    }
+
+    .location-banner-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: clamp(1.75rem, 4vw, 3.25rem);
+      color: #fff;
+      font-family: 'Signika', sans-serif;
+      z-index: 1;
+    }
+
+    .location-label {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      letter-spacing: 0.12em;
+    }
+
+    .location-meta {
+      font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+      font-weight: 500;
+      opacity: 0.85;
+      margin-top: 0.4rem;
+    }
+
+    .location-arrow {
+      position: absolute;
+      right: clamp(1.25rem, 3vw, 2rem);
+      top: clamp(1.25rem, 3vw, 2rem);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(2px);
+      z-index: 1;
+      transition: transform 450ms cubic-bezier(0.22, 0.61, 0.36, 1), border-color 450ms ease, background 450ms ease;
+    }
+
+    .location-banner:hover .location-arrow {
+      border-color: rgba(255, 255, 255, 0.9);
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .location-arrow svg {
+      transition: transform 450ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .location-section.open .location-arrow svg {
+      transform: rotate(180deg);
+    }
+
+    .location-panel {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-18px);
+      transition: max-height 800ms cubic-bezier(0.19, 1, 0.22, 1), opacity 600ms ease, transform 600ms ease;
+      background: rgba(15, 23, 42, 0.04);
+    }
+
+    .location-panel.open {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .location-panel-inner {
+      padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 3rem) clamp(2.25rem, 4vw, 3rem);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.05), rgba(15, 23, 42, 0.12));
+    }
+
+    .location-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .location-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .location-thumb-wrap {
+      overflow: hidden;
+    }
+
+    .location-thumb-link {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .location-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 450ms ease, filter 450ms ease;
+      filter: saturate(0.95);
+    }
+
+    .location-thumb-link:hover .location-thumb {
+      transform: scale(1.08);
+      filter: saturate(1.05);
+    }
+
+    .location-empty {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: rgba(15, 23, 42, 0.78);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px dashed rgba(148, 163, 184, 0.45);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .location-section {
+        background: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.2);
+      }
+
+      .location-panel {
+        background: rgba(15, 23, 42, 0.55);
+      }
+
+      .location-panel-inner {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.4));
+      }
+
+      .location-empty {
+        background: rgba(15, 23, 42, 0.55);
+        color: rgba(226, 232, 240, 0.92);
+        border-color: rgba(148, 163, 184, 0.35);
+      }
+    }
+  </style>
   <!-- Start - Fancybox Scripts -->
   <script defer src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
@@ -65,146 +257,450 @@
 
   <div class="container mx-auto">
     <h1 class="text-4xl pt-10 pb-8 font-bold">TRAVEL</h1>
-    <section class="text-neutral-700">
-      <div class="container w-full">
-        <div id="gallery" class="w-full"></div>
-        <div id="sentinel" class="h-1"></div>
-        <p id="emptyMsg" class="text-sm text-gray-500 mt-4 hidden">No images yet. Add URLs to <code>portfolio/data/travel.json</code>.</p>
-      </div>
+    <section class="text-neutral-700 pb-24">
+      <div id="locationsContainer" class="space-y-10"></div>
+      <p id="emptyMsg" class="text-sm text-gray-500 mt-8 hidden">No images yet. Add URLs to <code>portfolio/data/travel.json</code>.</p>
+      <p id="errorMsg" class="text-sm text-rose-500 mt-8 hidden">Could not load gallery data. Please try again later.</p>
     </section>
     <script>
       window.addEventListener('DOMContentLoaded', () => {
-        fetch('./data/travel.json', { cache: 'no-cache' })
-          .then(r => r.json())
-          .then(items => {
-          const grid = document.getElementById('gallery');
-          const empty = document.getElementById('emptyMsg');
-          const sentinel = document.getElementById('sentinel');
-          if (!Array.isArray(items) || items.length === 0) {
-            empty.classList.remove('hidden');
-            return;
+        const container = document.getElementById('locationsContainer');
+        const emptyMsg = document.getElementById('emptyMsg');
+        const errorMsg = document.getElementById('errorMsg');
+
+        const PLACEHOLDER_LOCATIONS = [
+          {
+            name: 'Japan',
+            bannerSource: 'https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757371379/IMG_0424_uezcy7.jpg',
+            subtitle: 'Neon nights, temples, and alpine mornings.'
+          },
+          {
+            name: 'French Riviera',
+            bannerSource: 'https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757373070/IMG_7311_kepzvm.jpg',
+            subtitle: 'Azure blues, citrus light, and coastal romance.'
+          },
+          {
+            name: 'Norway',
+            bannerSource: 'https://res.cloudinary.com/doiqozsto/image/upload/q_auto:eco/f_auto/v1757373435/IMG_9870_lhyk8q.jpg',
+            subtitle: 'Fjords, auroras, and endless mountain air.'
           }
-          let index = 0;
-          const CHUNK = 30;
-          let priorityCount = 0;
-          let loading = false;
-          let carry = [];
+        ];
 
-          const makeTransformed = (url, trans) => {
-            const up = '/upload/';
-            const i = url.indexOf(up);
-            if (i === -1) return url;
-            const pre = url.slice(0, i + up.length);
-            const rest = url.slice(i + up.length);
-            const vIdx = rest.indexOf('/v');
-            const suf = vIdx !== -1 ? rest.slice(vIdx) : rest.replace(/^[^/]+\//, '/');
-            return pre + trans + suf;
-          };
-          const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
+        const FALLBACK_BANNERS = [
+          'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.92))',
+          'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(49, 46, 129, 0.9))',
+          'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(14, 116, 144, 0.9))'
+        ];
 
-          const getAspect = (url) => new Promise((resolve) => {
+        const makeTransformed = (url, trans) => {
+          if (!url || typeof url !== 'string') return url;
+          const up = '/upload/';
+          const index = url.indexOf(up);
+          if (index === -1) return url;
+          const prefix = url.slice(0, index + up.length);
+          const rest = url.slice(index + up.length);
+          const versionIndex = rest.indexOf('/v');
+          const suffix = versionIndex !== -1 ? rest.slice(versionIndex) : rest.replace(/^[^/]+\//, '/');
+          return prefix + trans + suffix;
+        };
+
+        const baseTrans = 'f_avif,q_auto:eco,dpr_auto';
+        const bannerTrans = 'f_auto,q_auto:good,c_fill,g_auto,w_2200,h_1400';
+
+        const aspectCache = new Map();
+
+        const getAspect = (url) =>
+          new Promise((resolve) => {
+            if (!url) {
+              resolve(1.5);
+              return;
+            }
+            if (aspectCache.has(url)) {
+              resolve(aspectCache.get(url));
+              return;
+            }
             const tiny = new Image();
             tiny.decoding = 'async';
             tiny.src = makeTransformed(url, 'f_avif,q_1,c_limit,w_24');
-            tiny.onload = () => {
-              resolve(tiny.naturalWidth && tiny.naturalHeight ? tiny.naturalWidth / tiny.naturalHeight : 1.5);
+            const done = (ratio) => {
+              aspectCache.set(url, ratio);
+              resolve(ratio);
             };
-            tiny.onerror = () => resolve(1.5);
+            tiny.onload = () => {
+              const ratio =
+                tiny.naturalWidth && tiny.naturalHeight
+                  ? tiny.naturalWidth / tiny.naturalHeight
+                  : 1.5;
+              done(ratio);
+            };
+            tiny.onerror = () => done(1.5);
           });
 
-          const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap, flushLastRow = false) => {
-            const rows = [];
-            let row = [];
-            let sumAR = 0;
-            itemsWithAr.forEach((it) => {
-              row.push(it);
-              sumAR += it.ar;
-              const desiredH = baseRowH;
-              const rowW = sumAR * desiredH + gap * (row.length - 1);
-              if (rowW >= containerWidth * 1.1) {
-                const scale = (containerWidth - gap * (row.length - 1)) / (sumAR * desiredH);
-                const rowH = Math.max(160, Math.round(desiredH * scale));
-                rows.push({ items: row, rowH });
-                row = [];
-                sumAR = 0;
+        const layoutRows = (itemsWithAr, containerWidth, baseRowH, gap, flushLastRow = false) => {
+          const rows = [];
+          let row = [];
+          let sumAR = 0;
+          itemsWithAr.forEach((it) => {
+            row.push(it);
+            sumAR += it.ar;
+            const desiredH = baseRowH;
+            const rowW = sumAR * desiredH + gap * (row.length - 1);
+            if (rowW >= containerWidth * 1.1) {
+              const scale = (containerWidth - gap * (row.length - 1)) / (sumAR * desiredH);
+              const rowH = Math.max(160, Math.round(desiredH * scale));
+              rows.push({ items: row, rowH });
+              row = [];
+              sumAR = 0;
+            }
+          });
+          if (row.length && flushLastRow) {
+            rows.push({ items: row, rowH: baseRowH });
+            row = [];
+          }
+          return { rows, leftover: row.slice() };
+        };
+
+        const resizeCallbacks = new Set();
+        let resizeRAF = null;
+        window.addEventListener('resize', () => {
+          if (resizeRAF) cancelAnimationFrame(resizeRAF);
+          resizeRAF = requestAnimationFrame(() => {
+            resizeCallbacks.forEach((cb) => cb());
+          });
+        });
+
+        let priorityBudget = 0;
+
+        const renderRows = (grid, rows, groupId) => {
+          if (!rows.length) return;
+          const frag = document.createDocumentFragment();
+          rows.forEach((row) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'location-row';
+            row.items.forEach((it) => {
+              const width = Math.max(140, Math.round(it.ar * row.rowH));
+              const wrap = document.createElement('div');
+              wrap.className = 'location-thumb-wrap';
+              wrap.style.width = width + 'px';
+              wrap.style.height = row.rowH + 'px';
+              wrap.style.flex = `0 0 ${width}px`;
+
+              const anchor = document.createElement('a');
+              anchor.href = it.url;
+              anchor.className = 'location-thumb-link';
+              anchor.setAttribute('data-fancybox', groupId);
+              if (it.alt) anchor.setAttribute('data-caption', it.alt);
+
+              const img = document.createElement('img');
+              img.alt = it.alt || '';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              if (priorityBudget < 12) {
+                img.fetchPriority = 'high';
+                priorityBudget += 1;
+              }
+              img.width = width;
+              img.height = row.rowH;
+              img.className =
+                'location-thumb opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
+
+              const onLoad = () => {
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+                img.removeEventListener('load', onLoad);
+              };
+              img.addEventListener('load', onLoad);
+
+              const trans = `${baseTrans},c_fill,g_auto,w_${width},h_${row.rowH}`;
+              img.src = makeTransformed(it.url, trans);
+              if (img.complete) onLoad();
+
+              anchor.appendChild(img);
+              wrap.appendChild(anchor);
+              rowDiv.appendChild(wrap);
+            });
+            frag.appendChild(rowDiv);
+          });
+          grid.innerHTML = '';
+          grid.appendChild(frag);
+          Fancybox.bind(`[data-fancybox="${groupId}"]`, {});
+        };
+
+        const renderLocationGallery = async (section, grid, items, groupId) => {
+          if (!grid || !items.length) return;
+          const parent = grid.parentElement;
+          const sectionWidth = section.clientWidth;
+          let availableWidth = grid.clientWidth || parent.clientWidth || sectionWidth;
+          if (!availableWidth || availableWidth < 320) {
+            availableWidth = window.innerWidth - 48;
+          }
+          const baseRowH =
+            window.innerWidth >= 1280
+              ? 420
+              : window.innerWidth >= 1024
+              ? 360
+              : window.innerWidth >= 768
+              ? 280
+              : 220;
+          const gap = 12;
+          const withAr = await Promise.all(
+            items.map(async (item) => {
+              const ar = await getAspect(item.url);
+              return { ...item, ar };
+            })
+          );
+          const { rows } = layoutRows(withAr, availableWidth, baseRowH, gap, true);
+          renderRows(grid, rows, groupId);
+        };
+
+        const createLocationSection = (meta, items, { openByDefault = false, prependInfo = null } = {}) => {
+          const section = document.createElement('section');
+          section.className = 'location-section';
+          if (openByDefault) section.dataset.autoOpen = 'true';
+
+          const slug = meta.name.replace(/\s+/g, '-').toLowerCase();
+
+          const banner = document.createElement('button');
+          banner.type = 'button';
+          banner.className = 'location-banner';
+          banner.setAttribute('aria-expanded', String(openByDefault));
+          banner.setAttribute('aria-controls', `${slug}-panel`);
+
+          const backgroundSource = meta.bannerSource || (items[0] && items[0].url);
+          if (backgroundSource) {
+            banner.style.setProperty('--banner-image', `url('${makeTransformed(backgroundSource, bannerTrans)}')`);
+          } else if (meta.bannerImage) {
+            banner.style.setProperty('--banner-image', meta.bannerImage);
+          } else {
+            const fallback = FALLBACK_BANNERS[Math.floor(Math.random() * FALLBACK_BANNERS.length)];
+            banner.style.setProperty('--banner-image', fallback);
+          }
+
+          const bannerContent = document.createElement('div');
+          bannerContent.className = 'location-banner-content';
+
+          const label = document.createElement('div');
+          label.className = 'location-label';
+          label.textContent = meta.name;
+          bannerContent.appendChild(label);
+
+          const subtitle = document.createElement('div');
+          subtitle.className = 'location-meta';
+          subtitle.textContent =
+            meta.subtitle ||
+            (items.length
+              ? `${items.length} image${items.length === 1 ? '' : 's'} ready to explore.`
+              : 'Assign photos to this location to populate the gallery.');
+          bannerContent.appendChild(subtitle);
+
+          const arrowWrap = document.createElement('span');
+          arrowWrap.className = 'location-arrow';
+          arrowWrap.innerHTML =
+            '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"><path d="M4.167 7.5L10 13.333L15.833 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+          banner.appendChild(bannerContent);
+          banner.appendChild(arrowWrap);
+
+          const panel = document.createElement('div');
+          panel.className = 'location-panel';
+          panel.id = `${slug}-panel`;
+
+          const panelInner = document.createElement('div');
+          panelInner.className = 'location-panel-inner space-y-6';
+          panel.appendChild(panelInner);
+
+          if (prependInfo) {
+            panelInner.appendChild(prependInfo);
+          }
+
+          let grid = null;
+          if (items.length) {
+            grid = document.createElement('div');
+            grid.className = 'location-grid';
+            panelInner.appendChild(grid);
+          } else {
+            const empty = document.createElement('div');
+            empty.className = 'location-empty';
+            empty.innerHTML = `No images assigned to <strong>${meta.name}</strong> yet.<br>Add <code>"location": "${meta.name}"</code> to each relevant entry in <code>portfolio/data/travel.json</code>.`;
+            panelInner.appendChild(empty);
+          }
+
+          const groupId = `gallery-${slug}`;
+          let rendering = false;
+          let needsRender = false;
+
+          const render = async () => {
+            if (!grid || !items.length) return;
+            if (rendering) {
+              needsRender = true;
+              return;
+            }
+            rendering = true;
+            try {
+              await renderLocationGallery(section, grid, items, groupId);
+              if (panel.classList.contains('open')) {
+                panel.style.maxHeight = 'none';
+              }
+            } finally {
+              rendering = false;
+              if (needsRender) {
+                needsRender = false;
+                render();
+              }
+            }
+          };
+
+          const openPanel = async () => {
+            section.classList.add('open');
+            panel.classList.add('open');
+            banner.setAttribute('aria-expanded', 'true');
+            if (panel.style.maxHeight === 'none') {
+              panel.style.maxHeight = '0px';
+              panel.offsetHeight;
+            }
+            if (items.length) {
+              await render();
+            }
+            panel.style.maxHeight = panel.scrollHeight + 'px';
+          };
+
+          const closePanel = () => {
+            section.classList.remove('open');
+            panel.classList.remove('open');
+            banner.setAttribute('aria-expanded', 'false');
+            panel.style.maxHeight = panel.scrollHeight + 'px';
+            requestAnimationFrame(() => {
+              panel.style.maxHeight = '0px';
+            });
+          };
+
+          banner.addEventListener('click', () => {
+            if (section.classList.contains('open')) {
+              closePanel();
+            } else {
+              openPanel();
+            }
+          });
+
+          panel.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'max-height' && panel.classList.contains('open')) {
+              panel.style.maxHeight = 'none';
+            }
+          });
+
+          section.addEventListener('auto-open', () => {
+            if (!section.classList.contains('open')) {
+              openPanel();
+            } else if (items.length) {
+              render();
+            }
+          });
+
+          if (items.length) {
+            resizeCallbacks.add(() => {
+              if (section.classList.contains('open')) {
+                render();
               }
             });
-            if (row.length && flushLastRow) {
-              rows.push({ items: row, rowH: baseRowH });
-              row = [];
-            }
-            return { rows, leftover: row.slice() };
-          };
+          }
 
-          const renderRows = (rows) => {
-            if (!rows.length) return;
-            const frag = document.createDocumentFragment();
-            rows.forEach((row) => {
-              const rowDiv = document.createElement('div');
-              rowDiv.className = 'flex gap-3 mb-3';
-              row.items.forEach((it) => {
-                const width = Math.round(it.ar * row.rowH);
-                const wrap = document.createElement('div');
-                wrap.style.width = width + 'px';
-                wrap.style.height = row.rowH + 'px';
-                wrap.className = 'overflow-hidden';
-                const a = document.createElement('a');
-                a.href = it.url;
-                a.setAttribute('data-fancybox', 'gallery');
-                const img = document.createElement('img');
-                img.alt = it.alt || '';
-                img.loading = 'lazy';
-                img.decoding = 'async';
-                if (priorityCount < 8) { img.fetchPriority = 'high'; priorityCount++; }
-                img.width = width; img.height = row.rowH;
-                img.className = 'block w-full h-full object-cover object-center opacity-0 animate-fade-in transition duration-500 transform scale-100 hover:scale-110';
-                const onLoad = () => { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); img.removeEventListener('load', onLoad); };
-                img.addEventListener('load', onLoad);
-                const trans = baseTrans + `,c_fill,g_auto,w_${width},h_${row.rowH}`;
-                img.src = makeTransformed(it.url, trans);
-                if (img.complete) onLoad();
-                a.appendChild(img);
-                wrap.appendChild(a);
-                rowDiv.appendChild(wrap);
-              });
-              frag.appendChild(rowDiv);
+          section.appendChild(banner);
+          section.appendChild(panel);
+
+          return section;
+        };
+
+        fetch('./data/travel.json', { cache: 'no-cache' })
+          .then((r) => r.json())
+          .then((items) => {
+            if (!Array.isArray(items) || items.length === 0) {
+              emptyMsg.classList.remove('hidden');
+              return;
+            }
+
+            const normalised = items.filter((item) => item && item.url);
+            if (!normalised.length) {
+              emptyMsg.classList.remove('hidden');
+              return;
+            }
+
+            const groups = new Map();
+            normalised.forEach((item) => {
+              const loc = typeof item.location === 'string' && item.location.trim() ? item.location.trim() : 'Unassigned';
+              if (!groups.has(loc)) groups.set(loc, []);
+              groups.get(loc).push(item);
             });
-            grid.appendChild(frag);
-            Fancybox.bind('[data-fancybox="gallery"]', {});
-          };
 
-          const renderChunk = async () => {
-            if (loading) return;
-            loading = true;
-            const rawSlice = items.slice(index, index + CHUNK);
-            const slice = rawSlice.filter(it => it && it.url);
-            index += rawSlice.length;
-            const containerWidth = grid.clientWidth || window.innerWidth - 40;
-            const baseRowH = window.innerWidth >= 1024 ? 400 : 220;
-            const gap = 12;
-            const withAr = await Promise.all(slice.map(async (it) => ({ ...it, ar: await getAspect(it.url) })));
-            const input = carry.concat(withAr);
-            const isLastChunk = index >= items.length;
-            const { rows, leftover } = layoutRows(input, containerWidth, baseRowH, gap, isLastChunk);
-            renderRows(rows);
-            carry = leftover;
-            if (isLastChunk && carry.length === 0) observer.disconnect();
-            loading = false;
-          };
+            const sections = [];
+            let hasOpened = false;
 
-          renderChunk();
+            PLACEHOLDER_LOCATIONS.forEach((meta) => {
+              const list = groups.get(meta.name) || [];
+              if (groups.has(meta.name)) groups.delete(meta.name);
+              const shouldOpen = !hasOpened && list.length > 0;
+              if (shouldOpen) hasOpened = true;
+              sections.push(createLocationSection(meta, list, { openByDefault: shouldOpen }));
+            });
 
-          const observer = new IntersectionObserver((entries) => {
-            if (entries.some(e => e.isIntersecting)) {
-              renderChunk();
+            if (groups.has('Unassigned')) {
+              const list = groups.get('Unassigned');
+              groups.delete('Unassigned');
+              const note = document.createElement('div');
+              note.className = 'location-empty';
+              note.innerHTML =
+                'Add a <code>"location"</code> property (for example <code>"Japan"</code>) to move each photo into its matching banner.';
+              const shouldOpen = !hasOpened && list.length > 0;
+              if (shouldOpen) hasOpened = true;
+              sections.push(
+                createLocationSection(
+                  {
+                    name: 'Unassigned',
+                    subtitle: 'Photos waiting for a location tag.',
+                    bannerSource: list[0] && list[0].url
+                  },
+                  list,
+                  { openByDefault: shouldOpen, prependInfo: note }
+                )
+              );
             }
-          }, { rootMargin: '800px 0px' });
-          observer.observe(sentinel);
-        })
+
+            if (groups.size) {
+              Array.from(groups.entries())
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .forEach(([name, list]) => {
+                  const shouldOpen = !hasOpened && list.length > 0;
+                  if (shouldOpen) hasOpened = true;
+                  sections.push(
+                    createLocationSection(
+                      {
+                        name,
+                        subtitle: `${list.length} image${list.length === 1 ? '' : 's'} from ${name}.`
+                      },
+                      list,
+                      { openByDefault: shouldOpen }
+                    )
+                  );
+                });
+            }
+
+            if (!sections.length) {
+              emptyMsg.classList.remove('hidden');
+              return;
+            }
+
+            if (!hasOpened) {
+              sections[0].dataset.autoOpen = 'true';
+            }
+
+            sections.forEach((section) => container.appendChild(section));
+            sections.forEach((section) => {
+              if (section.dataset.autoOpen === 'true') {
+                section.dispatchEvent(new CustomEvent('auto-open'));
+              }
+            });
+          })
           .catch(() => {
-            const empty = document.getElementById('emptyMsg');
-            empty.textContent = 'Could not load gallery data.';
-            empty.classList.remove('hidden');
+            errorMsg.classList.remove('hidden');
           });
       });
     </script>
